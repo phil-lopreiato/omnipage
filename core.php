@@ -12,6 +12,10 @@
 *  OmniCore
 */
 
+// show php errors
+error_reporting(E_ALL);
+ini_set('display_errors',1);
+
 //include 'common'.'Common' contains all necessary includes.
 include "includes/common.php";
 
@@ -26,10 +30,11 @@ $page->init();
 $editable = userPermissions(1);
 
 if($page->error404 || !userPermissions(0)){
+    echo "404";
 	header("HTTP/1.0 404 Not Found");
-	echo file_get_contents("/omni/error.php?errorCode=404");
+	echo file_get_contents($domain."/omni/error.php?errorCode=404");
 	exit;
-	}
+}
 
 $menu = drawMenu();
 
@@ -40,14 +45,14 @@ $skinVars["mainColumn"] = renderModules($page->pageId);
 $skinVars["secondColumn"] = renderModules(0);
 $skinVars["title"] = $page->title;
 $skinVars["currentPage"] = $page->fullUrl;
-$skinVars["sessionId"] = $user->data["session_id"];
+$skinVars["sessionId"] = isset($user)?$user->data["session_id"]:"";
 $skinVars["pageId"] = $page->pageId;
 $skinVars["topMenu"] = $menu[0];
 $skinVars["secondMenu"] = $menu[1];
 $skinVars["breadcrumbs"] = $page->breadCrumbs();
 
 $options = array("ISHOME"=>($page->pageId==1));
-	
+
 //html tidy
 // Specify configuration
 $config = array(
@@ -55,13 +60,12 @@ $config = array(
 		   'doctype'		=> "user",
            'wrap'           => 200);
 
-
 $html = parseSkin($skinVars,"main",$options);
 
 // Tidy
 /*$tidy = new tidy;
 $tidy->parseString($html, $config, 'utf8');
 $tidy->cleanRepair(); */
-  
+
 echo $html;
 ?>

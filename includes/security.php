@@ -20,38 +20,42 @@ fclose($file);
 }
 
 function userPermissions($type,$pageId=""){
-	global $user,$page;
+	global $user,$page, $mySQLLink;
 	//if pageId is not specified, use current one
 	if($pageId == "")
 		$pageId = $page->pageId;
-	
+
 	//everyone starts out without permission
 	$result = false;
-	
+
 	//Admin group has full permissions
-	if(($user->data["group_id"]==5))
-	$result = true;
-	
-	$query = mysql_query("SELECT * FROM `pages` WHERE `id` = '".mysql_real_escape_string($pageId)."'") or die(mysql_error());
+	/* take out group for now
+    if(($user->data["group_id"]==5))
+	    $result = true;
+    */
+
+	$query = mysql_query("SELECT * FROM `pages` WHERE `pageId` = '".mysql_real_escape_string($pageId)."'", $mySQLLink) or die(mysql_error());
 	$row = mysql_fetch_array($query);
 	//if not private, user has read access
-	if($row["private"]=="0"&&$type==0)
-	$result = true;
-	
+	if($row["private"] == "0" && $type == 0)
+	    $result = true;
+
 	//inherit
-	if($row["inheritPermissions"]=="1"&&userPermissions($type,$row["parentId"]))
-	$result = true;
-	
+	if($row["inheritPermissions"] == "1" && userPermissions($type,$row["parentId"]))
+	    $result = true;
+
 	//check database for individual user permissions
-	$query = mysql_query("SELECT * FROM `pagePermissions` WHERE `pageId` = '".mysql_real_escape_string($pageId)."' AND `id` = '".$user->data["user_id"]."'");
-	$row = mysql_fetch_array($query);	
-	
+    if(!isset($user))
+        return $result;
+	$query = mysql_query("SELECT * FROM `pagePermissions` WHERE `pageId` = '".mysql_real_escape_string($pageId)."' AND `userId` = '".mysql_real_escape_string($user->data['user_id'])."'", $mySQLLink);
+	$row = mysql_fetch_array($query);
+
 	if($row){
 		if($row["access"]==0 && $type==0)
-		$result = true;
+		    $result = true;
 		if($row["access"]==1)
-		$result = true;
-		}
+		    $result = true;
+	}
 	return $result;
 }
 

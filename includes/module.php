@@ -17,7 +17,8 @@ while($row = readdir($dirHandle)){
 // returns html formatted string of rendered modules
 function renderModules($pageId){
 	global $mySQLLink;
-	$query = mysql_query(mysql_real_escape_string("SELECT * FROM `modules` WHERE `pageId` = '$pageId' AND `deleted` = '0' ORDER BY `order` ASC"), $mySQLLink) or die(mysql_error());
+    $pageId = mysql_real_escape_string($pageId);
+	$query = mysql_query("SELECT * FROM `modules` WHERE `pageId` = $pageId AND `deleted` = 0 ORDER BY `order` ASC", $mySQLLink) or die(mysql_error());
 	$output = "";
 	while ($row = mysql_fetch_array($query)){
         // for each module on the page...
@@ -37,9 +38,10 @@ function renderModules($pageId){
 // render edit state of module, given its UID
 function renderEdit($modId){
 	global $mySQLLink;
+    $modId = mysql_real_escape_string($modId);
 
     // fetch the module from the db
-	$query = mysql_query(mysql_real_escape_string("SELECT `modType` FROM `modules` WHERE `modUID` = '$modId'"), $mySQLLink) or die(mysql_error());
+	$query = mysql_query("SELECT `modType` FROM `modules` WHERE `modUID` = '$modId'", $mySQLLink) or die(mysql_error());
 	$row = mysql_fetch_array($query);
 
     // get the module properties
@@ -52,10 +54,11 @@ function renderEdit($modId){
 // get properties for a given module
 function getProps($modId){
 	global $mySQLLink;
+    $modId = mysql_real_escape_string($modId);
 	$properties = array();
 
     // query the properties from the db and add them to our array
-	$propQuery = mysql_query(mysql_real_escape_string("SELECT * FROM `moduleProps` WHERE `modId` = '$modid'"), $mySQLLink) or die(mysql_error());
+	$propQuery = mysql_query("SELECT * FROM `moduleProps` WHERE `modId` = '$modId'", $mySQLLink) or die(mysql_error());
 	while($propRow = mysql_fetch_array($propQuery)){
 		$properties[$propRow["propName"]]=$propRow["propValue"];
 	}

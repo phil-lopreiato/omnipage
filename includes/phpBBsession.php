@@ -16,10 +16,10 @@
 	$phpbb_root_path = "$root_path/../forums/";
 	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	include($phpbb_root_path . 'common.' . $phpEx);
-	
+
 	//make local variables global
 	global $user, $auth;
-	
+
 	// Start session management
 	$user->session_begin();
 	$auth->acl($user->data);

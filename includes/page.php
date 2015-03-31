@@ -13,13 +13,13 @@
 */
 
 class url{
-	
+
 	var $fullUrl,$pageId,$error404,$pageTitle,$privatePage;
-	
+
 	//initialize
 	public function init(){
 	global $mySQLLink,$domain;
-	
+
 	//full url
 	$this->fullUrl = $domain.$_SERVER['REQUEST_URI'];
 
@@ -28,52 +28,57 @@ class url{
 
 	//bug fix: if only "/o/?sid=blah", add home
 	if(substr($url,0,4)=="/o/?")
-	$url = "/o/home?".substr($url,4);
-	
+	    $url = "/o/home?".substr($url,4);
+
 	$explode = explode("/",$url);
-	
+
 	$error404 = false;
-	
+
+    // default to a root page
 	$parentId = 0;
-	
+
 	if($explode[sizeof($explode)-1]=="")
-	unset($explode[sizeof($explode)-1]);
-	
+	    unset($explode[sizeof($explode)-1]);
+
 	$explode[sizeof($explode)-1] = explode("?",$explode[sizeof($explode)-1]);
-	
+
 	$explode[sizeof($explode)-1] = $explode[sizeof($explode)-1][0];
-	
+
+    // go through url parts and make sure all pages exist
 	for($i=2;$i<sizeOf($explode);$i++){
-		
-		$query = mysql_query("SELECT * FROM `pages` WHERE `deleted` = '0' AND `parentId` = '".$parentId."' AND `title` LIKE '".mysql_real_escape_string(str_replace("_"," ",$explode[$i]),$mySQLLink)."'",$GLOBALS["mySQLLink"]) or die(mysql_error());
-		
+        $str = "SELECT * FROM `pages` WHERE `deleted` = '0' AND `parentId` = '".$parentId."' AND `title` LIKE '".mysql_real_escape_string(str_replace("_"," ",$explode[$i]),$mySQLLink)."'";
+        $query = mysql_query($str,$GLOBALS["mySQLLink"]) or die(mysql_error());
+
 		$row = mysql_fetch_array($query);
-		
-		$this->error404 = $row ? false : true;
-		
-		$parentId = $row["id"];
+
+		$error404 = $row ? false : true;
+
+		$parentId = $row["pageId"];
 		$this->title = $row["title"];
-		}
-	
+
+	}
+
 	if(sizeOf($explode)==2||sizeOf($explode)==1){
 		$query = mysql_query("SELECT * FROM `pages` WHERE `deleted` = '0' AND `title` LIKE 'home'",$GLOBALS["mySQLLink"]) or die(mysql_error());
-		
+
 		$row = mysql_fetch_array($query);
-		
-		$parentId = $row["id"];
+
+		$parentId = $row["pageId"];
 		$this->title = $row["title"];
-		}
+
+    }
+
 	//redirect
 	if(strlen($row["redirect"])>0){
 		header("location:".$row["redirect"]);
 		exit;
-		}
+	}
 
 	$this->pageId = $parentId;
-	
-	$this->privatePage = $row["private"]?true:false; 
-	}
-	
+
+	$this->privatePage = $row["private"]?true:false;
+}
+
 	//return breadcrumbs for page
 	public function breadCrumbs($page = -1){
 		if($page = -1)
@@ -83,7 +88,7 @@ class url{
 		$titles = $redirects = array();
 		//get all pages parent of starting page
 		while($index != 0){
-			$query = mysql_query("SELECT `title`, `parentId`, `redirect` FROM `pages` WHERE `id` = $index") or die(mysq_error());
+			$query = mysql_query("SELECT `title`, `parentId`, `redirect` FROM `pages` WHERE `pageId` = $index") or die(mysql_error());
 			$row = mysql_fetch_array($query);
 			$titles[] = $row["title"];
 			//check if redirect is false page (container)

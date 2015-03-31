@@ -11,11 +11,16 @@
 *  developed by Matt Howard, Phil Lopreiato
 */
 
-//root path
-$root_path = "your/root/path/omni";
+//TODO move elements to config file
 
 //domain
-$domain = "http://yourDomain.com";
+global $domain;
+$domain = "http://teehee.me";
+
+//root path
+global $root_path;
+$root_path = "/var/www/default/omni";
+
 
 //includes
 include "$root_path/includes/mysql.php";
@@ -26,9 +31,10 @@ include "$root_path/includes/security.php";
 include "$root_path/includes/menu.php";
 include "$root_path/includes/modHistory.php";
 
-//initalize phpBB session
+/* Don't use phpbb sessions
+ * initalize phpBB session
 include "phpBBsession.php";
-
+ */
 
 //set current skin or use default
 $currentSkin = isset($_GET["skin"])?$_GET["skin"]:"classic";
@@ -38,6 +44,6 @@ date_default_timezone_set("America/New_York");
 
 //set char encoding
 header("Content-Type: text/html;charset=UTF-8");
-mysql_set_charset("utf8");
+//mysql_set_charset("utf8");
 
 ?>

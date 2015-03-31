@@ -46,7 +46,7 @@ switch($_GET["errorCode"]){
 		break;
 	case 406:
 		$errorTitle = "406 Not Acceptable";
-		$errorDescription = "<p>The requested page had some issue with accepting headers in the requres.</p><br/><p>More information on this error can be found <a href='http://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_Error' target='_new'>here</a></p>";		
+		$errorDescription = "<p>The requested page had some issue with accepting headers in the requres.</p><br/><p>More information on this error can be found <a href='http://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_Error' target='_new'>here</a></p>";
 		break;
 	case 409:
 		$errorTitle = "409 Conflict";

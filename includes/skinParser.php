@@ -15,15 +15,15 @@
 
 function parseSkin($fields,$loc,$cases = array()){
 	global $currentSkin,$editable,$user,$root_path;
-	$skinPath = mysql_fetch_array(mysql_query("SELECT `path`,`id` FROM `skins` WHERE `name` = '".mysql_real_escape_string($currentSkin)."'"));
+	$skinPath = mysql_fetch_array(mysql_query("SELECT `path`,`skinId` FROM `skins` WHERE `name` = '".mysql_real_escape_string($currentSkin)."'"));
 	if(file_exists($root_path."/skins/".$currentSkin."/".$loc.".html")){
 		$source = file_get_contents($root_path."/skins/".$skinPath['path']."/".$loc.".html");
 	}else{
-		$source = getGhost($skinPath['id'],$loc);
+		$source = getGhost($skinPath['skinId'],$loc);
 	}
 	//parse IFs
 	$cases["EDITABLE"]=$editable;
-	$cases["LOGGEDIN"]=($user->data["user_id"]!=ANONYMOUS);
+	$cases["LOGGEDIN"]=(isset($user)&&$user->data["user_id"]!=ANONYMOUS);
 
 	foreach($cases as $case=>$bool){
 		if($bool==true&&$bool!="0"){
@@ -47,8 +47,9 @@ function parseSkin($fields,$loc,$cases = array()){
 
 function getGhost($skin,$file){
 	global $root_path;
-	$skinData = mysql_fetch_array(mysql_query("SELECT `path`,`parent` FROM `skins` WHERE `id` = '".mysql_real_escape_string($skin)."'"));
-	if(file_exists($root_path."/skins/".$skinData['path']."/".$file.".html")){
+	$skinData = mysql_fetch_array(mysql_query("SELECT `path`,`parent` FROM `skins` WHERE `skinId` = '".mysql_real_escape_string($skin)."'"));
+
+    if(file_exists($root_path."/skins/".$skinData['path']."/".$file.".html")){
 		return file_get_contents($root_path."/skins/".$skinData['path']."/".$file.".html");
 	}else if($skinData['parent'] != -1){
 		return getGhost($skinData['parent'],$file);

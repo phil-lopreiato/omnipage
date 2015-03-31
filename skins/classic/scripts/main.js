@@ -1,4 +1,4 @@
-wndow.secondMenuTitle = new Array();
+window.secondMenuTitle = new Array();
 window.secondMenuUrl = new Array();
 for(i=0;i<20;i++){
 	window.secondMenuTitle[i]=new Array();
