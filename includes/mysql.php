@@ -6,11 +6,14 @@
    * Copyright (c) 2011 Avon Robotics                                                       *
    ******************************************************************************************/
 
-/* mySQL Database Connect
+/* mySQL Database Utilities
 *  version 0.1
 *  developed by Matt Howard, Phil Lopreiato
 */
 
+/* Connect to a local mysql database
+ * Connection parameters are read from /omni/config.ini
+ */
 function mySQLConnect(){
 	$config = parse_ini_file("../omni.ini");
     $username = $config['user'];
