@@ -18,11 +18,8 @@
 function setVariables($pageId, $modId, $variables){
 	global $user,$mySQLLink;
 
-	$pageId = mysql_real_escape_string($pageId);
-	$instanceId = mysql_real_escape_string($modId);
-
     //put old edit data into database
-	$propQuery = mysql_query("SELECT * FROM `moduleProps` WHERE `modId` = '$modId'",$mySQLLink) or die(mysql_error());
+	$propQuery = mysql_query(mysql_real_escape_string("SELECT * FROM `moduleProps` WHERE `modId` = '$modId'"),$mySQLLink) or die(mysql_error());
 	while($propRow = mysql_fetch_array($propQuery)){
             // build array of old properties
 			$oldProps[$propRow["propName"]]=$propRow["propValue"];
@@ -38,19 +35,19 @@ function setVariables($pageId, $modId, $variables){
         // 'pageId' and 'modId' are immutable attributes, so don't update them
 		if($name != "pageId" || $name != "modId"){
             $string = "INSERT INTO modulePropsHistory (editId, propName, propValue) VALUES ('$editId','$name','".stripslashes($value)."')";
-			mysql_query(mysql_real_escape_string($string))or die(mysql_error());
+			mysql_query(mysql_real_escape_string($string), $mySQLLink)or die(mysql_error());
 		}
 	}
 
     // update the current properties to the newly specified values
 	foreach ($variables as $key => $value){
-		$exist = mysql_query(mysql_real_escape_string("SELECT * FROM `moduleProps` WHERE `modId`= '$modId' AND `propName` = '$key'"))or die(mysql_error());
+		$exist = mysql_query(mysql_real_escape_string("SELECT * FROM `moduleProps` WHERE `modId`= '$modId' AND `propName` = '$key'"), $mySQLLink)or die(mysql_error());
 
         // if the property already exists then update it, else add it anew
 		if(mysql_num_rows($exist) > 0){
-			mysql_query(mysql_real_escape_string("UPDATE `moduleProps` SET `propValue` = '$value' WHERE `modId` = '$modid' AND `propName` = '$key'"))or die(mysql_error());
+			mysql_query(mysql_real_escape_string("UPDATE `moduleProps` SET `propValue` = '$value' WHERE `modId` = '$modid' AND `propName` = '$key'"), $mySQLLink)or die(mysql_error());
 		}else{
-			mysql_query(mysql_real_escape_string("INSERT INTO `moduleProps` (modId, propName, propValue) VALUES ('$modId','$key','$value')"))or die(mysql_error());
+			mysql_query(mysql_real_escape_string("INSERT INTO `moduleProps` (modId, propName, propValue) VALUES ('$modId','$key','$value')"), $mySQLLink)or die(mysql_error());
 		}
 	}
 
@@ -84,10 +81,10 @@ function getEditHistory($modId){
 }
 
 /* Show info for a given edit id */
-function getEditInfo($modId, $id){
+function getEditInfo($modId, $editId){
 	$output = "";
 	$q = mysql_query(mysql_real_escape_string("SELECT * FROM `modulePropsHistory` WHERE editId = '$editId'"))or die(mysql_error());
-	$output .= "<table id='editData_".$_GET['id']."' name='editData_".$editId."' style='width:100%;'><tr style='text-decoration:bold;'><td>Property Name</td><td>Property Value</td></tr>";
+	$output .= "<table id='editData_".$editId."' name='editData_".$editId."' style='width:100%;'><tr style='text-decoration:bold;'><td>Property Name</td><td>Property Value</td></tr>";
 	while($row = mysql_fetch_assoc($q)){
 		$output .= "<tr><td style='vertical-align:text-top;'>".$row['propName']."</td><td><div style='overflow:auto;width:100%'>".htmlentities($row['propValue'])."</div></td></tr>";
 	}
@@ -98,7 +95,7 @@ function getEditInfo($modId, $id){
 }
 
 /* Restore a module to a given edit state */
-function restoreEdit($modId, $edit){
+function restoreEdit($modId, $editId){
 	global $mySQLLink;
     $out = "";
 

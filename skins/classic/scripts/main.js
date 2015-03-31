@@ -1,4 +1,4 @@
-window.secondMenuTitle = new Array();
+wndow.secondMenuTitle = new Array();
 window.secondMenuUrl = new Array();
 for(i=0;i<20;i++){
 	window.secondMenuTitle[i]=new Array();
@@ -10,17 +10,17 @@ $(document).ready(function(){
 	$("#loginBox").hide();
 	$("#editBox").hide();
 	$("#secondMenuDiv").hide();
-	
+
 	$("#topMenuContainer").mouseleave(function(){
 		$("#secondMenuDiv").slideUp(200);
 	});
-	
+
 });
 function toggleLoginBox(){
 	$("#loginBox").toggle();
 	return false;
 }
-		
+
 		//menu navigation
 function showSecondMenu(id){
 	//trigger only if there are menu items
@@ -28,9 +28,9 @@ function showSecondMenu(id){
 	if(secondMenuTitle[id].length!=0){
 	if(id!=prevId){
 	prevId = id;
-	
+
 	output = "";
-	
+
 	//menu stuff
 	for(i=0;i<secondMenuTitle[id].length;i++){
 		output += "<a href=\""+secondMenuUrl[id][i]+"\">"+secondMenuTitle[id][i]+"</a> ";
@@ -44,7 +44,7 @@ function showSecondMenu(id){
 	else{
 	$("#secondMenuDiv").slideDown(200);
 	}}}}
-		
+
 	//change font size
 $(document).ready(function(){
 	$('html').css('font-size', parseFloat($.cookie("fontSize"),10));

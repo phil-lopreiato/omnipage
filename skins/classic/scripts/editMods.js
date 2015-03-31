@@ -28,7 +28,7 @@ $(document).ready(function(){
 		});
 		});
 		//use AJAX to get box's edits
-		
+
 function renderEdit(){
 	$("DIV").each(function(){
 		if($(this).attr("id").substr(0,4)=="mod_"){
@@ -38,7 +38,7 @@ function renderEdit(){
 			$(editObj).html("Loading...");
 			var data = $(this).attr("id").split("_");
 			$.get("/omni/ajax/modEdit.php",
-			{pageId:data[1],instanceId:data[2]},
+			{modId:data[1]},
 			function(data){
 				$(editObj).html(data);
 				$("DIV").each(function(){
@@ -48,7 +48,7 @@ function renderEdit(){
 				});
 			})
 		});
-					
+
 			}
 		});
 }
@@ -58,8 +58,8 @@ function updateSort(){
 	$("DIV").each(function(){
 		if($(this).attr("id").substr(0,4)=="mod_"){
 		pageIdd = $(this).attr("id").split("_")[1];
-		var instanceId = $(this).attr("id").split("_")[2];
-		newOrder[newOrder.length]=instanceId;
+		var modId = $(this).attr("id").split("_")[1];
+		newOrder[newOrder.length]=modId;
 		}
 	});
 	$("#updateSortButton").html("Loading...");
@@ -69,7 +69,7 @@ function updateSort(){
 		$("#updateSortButton").html("Done");
 		});
 	}
-	
+
 function modBoxToggle(){
 	$("#moduleBox").toggle();
 	if($("#moduleBox").html()=="Loading...")

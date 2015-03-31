@@ -25,30 +25,24 @@ exit;
 
 switch($_GET['mode']){
 case "showMod":
-		$query = mysql_query("SELECT * FROM `modules` WHERE `pageId` = '".mysql_real_escape_string($_GET['page'])."' AND `instanceId` = '".mysql_real_escape_string($_GET['instance'])."'");
-		$modId = mysql_fetch_array($query);
-		$modId = $modId["modId"];
+		$modId = $_GET["modId"];
 		$mod = getModule($modId);
-		$properties = getProps($_GET['page'],$_GET['instance']);
+		$properties = getProps($_GET['modId']);
 		echo $mod->render($properties);
 		break;
-		
+
 	case "getEdits":
-		echo getEditHistory($_GET['pageId'],$_GET['instanceId']);
+		echo getEditHistory($modId);
 		break;
 
 	case "getEditData":
-			//if($_GET['mode']=="getEditData"){
-			echo getEditInfo($pageId,$instanceId,$_GET['id']);
-			//}
+		echo getEditInfo($modId, $_GET['id']);
 		break;
 
 	case "restoreEdit":
-			//if($_GET['mode']=="restoreEdit"){
-			echo restoreEdit($_GET['pageId'],$_GET['instanceId'],$_GET['id']);
-			//}
-			break;
-	
+		echo restoreEdit($modId,$_GET['id']);
+		break;
+
 	case "pageHistory":
 		echo getPageHistory($_GET['page']);
 		break;

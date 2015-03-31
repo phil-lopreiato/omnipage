@@ -17,23 +17,18 @@
 include "../includes/common.php";
 
 mySQLConnect();
-$pageId = $_GET["pageId"];
-$instanceId = $_GET["instanceId"];
+$modId = $_GET["modId"];
 
+// quit here if the user doesn't have edit permission on this page
 if(!userPermissions(1,$pageId))
 exit;
 
 switch($_GET['mode']){
 	case "renderEdit":
-		//if($_GET["mode"]=="renderEdit")
-		echo renderEdit($pageId,$instanceId);
+		echo renderEdit($modId);
 		break;
-	
+
 	case "saveMod":
-		//if($_GET["mode"]=="saveMod"){
-		$query = mysql_query("SELECT * FROM `modules` WHERE `pageId` = '".mysql_real_escape_string($pageId)."' AND `instanceId` = '".mysql_real_escape_string($instanceId)."'")or die(mysql_error());
-		$modId = mysql_fetch_array($query)or die(mysql_error());
-		$modId = $modId["modId"];
 		$mod = getModule($modId);
 		$properties = array();
 		foreach($_GET as $k => $v){
@@ -41,25 +36,19 @@ switch($_GET['mode']){
 			$properties[$k] = $v;
 		}
 		$mod->edit($properties);
-		logEntry("Edited mod instance id '".$instanceId."' from pageId '".$pageId."'");
-		$properties = getProps($pageId,$instanceId);
+		logEntry("Edited mod id $modId on page $pageId");
+		$properties = getProps($modId);
 		echo $mod->render($properties);
-		//}
 		break;
 
 	case "delete":
-		//if($_GET['mode']=="delete"){
-		deleteMod($pageId,$instanceId);
-		logEntry("Deleted mod instance id '".$instanceId."' from pageId '".$pageId."'");
-		//}
+		deleteMod($pageId, $modId);
+		logEntry("Deleted mod id $modId from pageId $pageId");
 		break;
-		
+
 	case "showMod":
-		$query = mysql_query("SELECT * FROM `modules` WHERE `pageId` = '".mysql_real_escape_string($pageId)."' AND `instanceId` = '".mysql_real_escape_string($instanceId)."'")or die(mysql_error());
-		$modId = mysql_fetch_array($query);
-		$modId = $modId["modId"];
 		$mod = getModule($modId);
-		$properties = getProps($pageId,$instanceId);
+		$properties = getProps($modId);
 		echo $mod->render($properties);
 		break;
 }

@@ -27,7 +27,7 @@ class mod_HTML {
     }
 
 	public function edit($properties) {
-		setVariables(mysql_real_escape_string($properties['pageId']),mysql_real_escape_string($properties['modId']),array('code'=>$properties['code']));
+		setVariables($properties['pageId'],$properties['modId'],array('code'=>$properties['code']));
 	}
 
 	var $sqlNames, $sqlDefaults;
