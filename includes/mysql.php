@@ -12,14 +12,15 @@
 */
 
 function mySQLConnect(){
-	$username = "sql_user";
-	$password = "sql_pass";
-	$database = "sql_db";
+	$config = parse_ini_file("../omni.ini");
+    $username = $config['user'];
+	$password = $config['pass'];
+	$database = $config['db'];
 	global $mySQLLink, $mySQLDatabase;
 	$mySQLLink = mysql_connect("localhost",$username,$password) or die(mysql_error());
 	$mySQLDatabase = mysql_select_db($database,$mySQLLink) or die(mysql_error());
 	}
-	
+
 function mySQLClose(){
 	mysql_close();
 	}
