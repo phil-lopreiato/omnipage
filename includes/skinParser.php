@@ -5,7 +5,7 @@
    * License text can also be found at: http://www.opensource.org/licenses/mit-license.php     *
    * Copyright (c) 2011 Avon Robotics                                                          *
    *********************************************************************************************
-   
+
    **********************************************************************************************
    *  Skin parser                                                                                *
    *  Version 0.1                                                                               *
@@ -24,7 +24,7 @@ function parseSkin($fields,$loc,$cases = array()){
 	//parse IFs
 	$cases["EDITABLE"]=$editable;
 	$cases["LOGGEDIN"]=($user->data["user_id"]!=ANONYMOUS);
-	
+
 	foreach($cases as $case=>$bool){
 		if($bool==true&&$bool!="0"){
 			$source = preg_replace("%\[\[IF $case\]\]"."([^\[\[]+)"."\[\[END IF\]\]%s","$1",$source);
