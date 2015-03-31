@@ -1,0 +1,21 @@
+[[IF EDITABLE]]
+<textarea
+    style='width:550px;height:200px;'
+    name='textarea_{{pageId}}_{{modId}}'
+    id='textarea_{{pageId}}_{{modId}}'>
+
+".htmlentities({{code}})."
+</textarea>
+
+<p>
+<button onclick="saveMod({{pageId}}, {{modId}},{code:$('#textarea_{{pageId}}_{{modId}}').val()})">Save</button>
+<script type='text/javascript'>
+  $(function() {
+    $('#textarea_{{pageId}}_{{modId}}').htmlarea({
+      loaded: function(){
+	    this.showHTMLView();
+	  }
+    });
+ });
+</script>
+[[END IF]]
