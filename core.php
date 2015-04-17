@@ -22,6 +22,9 @@ include "includes/common.php";
 //connect to mySQL
 mySQLConnect();
 
+//get current user session
+get_logged_in();
+
 //get page info
 $page = new url();
 $page->init();
@@ -44,7 +47,7 @@ $skinVars["additionalHead"] = "";
 $skinVars["mainColumn"] = renderModules($page->pageId);
 $skinVars["secondColumn"] = renderModules(0);
 $skinVars["title"] = $page->title;
-$skinVars["currentPage"] = $page->fullUrl;
+$skinVars["currentPage"] = $page->url;
 $skinVars["sessionId"] = isset($user)?$user->data["session_id"]:"";
 $skinVars["pageId"] = $page->pageId;
 $skinVars["topMenu"] = $menu[0];

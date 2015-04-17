@@ -24,7 +24,8 @@ class url{
 	$this->fullUrl = $domain.$_SERVER['REQUEST_URI'];
 
 	//everything after ".org"
-	$url = $_SERVER['REQUEST_URI'];
+	$this->url = $_SERVER['REQUEST_URI'];
+    $url = $_SERVER['REQUEST_URI'];
 
 	//bug fix: if only "/o/?sid=blah", add home
 	if(substr($url,0,4)=="/o/?")

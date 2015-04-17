@@ -12,11 +12,11 @@
 */
 
 function logEntry($entry){
-global $user,$root_path;
-$file = fopen("$root_path/logs/security.txt",'a');
-$entry = str_replace("\n","\\n",$entry);
-fwrite($file,$user->data["user_email"].":".$user->data["username_clean"].":".$user->data["user_ip"].":".date("D M j G:i:s T Y").":".$entry."\n");
-fclose($file);
+    global $user,$root_path;
+    $file = fopen("$root_path/logs/security.txt",'a');
+    $entry = str_replace("\n","\\n",$entry);
+    fwrite($file,$user->data["user_email"].":".$user->data["username_clean"].":".$user->data["user_ip"].":".date("D M j G:i:s T Y").":".$entry."\n");
+    fclose($file);
 }
 
 function userPermissions($type,$pageId=""){
@@ -25,8 +25,8 @@ function userPermissions($type,$pageId=""){
 	if($pageId == "")
 		$pageId = $page->pageId;
 
-	//everyone starts out without permission
-	$result = false;
+	//admins start with full permission, everybody else does not
+	$result = isset($user)?$user->is_admin():false;
 
 	//Admin group has full permissions
 	/* take out group for now

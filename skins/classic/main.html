@@ -40,19 +40,19 @@
                 [[IF NOT LOGGEDIN]]
                 <a href="" onClick="toggleLoginBox&#40;&#41;;return false;">Login</a>
                 <div id="loginBox" class="navFloat ui-corner-bottom" style="display:none;">
-                <form action="" method="post">
+                <form action="/omni/login.php" method="post">
                 <span class="label"><label for="usernameBox">Username:</label></span><input id="usernameBox" style="width:94px;" name="username" type="text"><br>
                 <span class="label"><label for="passwordBox">Password:</label></span><input id="passwordBox" style="width:94px;" name="password" type="password"><br>
-                <span class="label"><label for="autologin">Remember? </label></span><input type="checkbox" name="autologin" id="autologin"><br>
                 <input type="hidden" name="redirect" value="{{currentPage}}">
-                <input type="hidden" name="sid" value="{{sessionId}}">
                 <input type="submit" value="Login" name="login">
                 </form>
-                <a href="" style="padding:0px;margin:0px;">Register</a>
                 </div>
                 [[END IF]]
                 [[IF LOGGEDIN]]
-                <a href="{{currentPage}}">Logout</a>
+                <a href="" onclick="$('#logout-form').submit(); return false;">Logout</a>
+                <form action="/omni/logout.php" method="post" id="logout-form">
+                    <input type="hidden" name="redirect" value="{{currentPage}}" />
+                </form>
                 [[END IF]]
                 [[IF EDITABLE]]
                 <a href="#" onClick="toggleEditBox&#40;&#41;;">Edit</a>

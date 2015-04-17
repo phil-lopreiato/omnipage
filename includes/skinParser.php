@@ -23,7 +23,7 @@ function parseSkin($fields,$loc,$cases = array()){
 	}
 	//parse IFs
 	$cases["EDITABLE"]=$editable;
-	$cases["LOGGEDIN"]=(isset($user)&&$user->data["user_id"]!=ANONYMOUS);
+    $cases["LOGGEDIN"]=(isset($user)&&$user->data["user_id"]>0);
 
 	foreach($cases as $case=>$bool){
 		if($bool==true&&$bool!="0"){

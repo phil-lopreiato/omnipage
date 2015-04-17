@@ -30,6 +30,7 @@ include "$root_path/includes/page.php";
 include "$root_path/includes/security.php";
 include "$root_path/includes/menu.php";
 include "$root_path/includes/modHistory.php";
+include "$root_path/includes/session.php";
 
 /* Don't use phpbb sessions
  * initalize phpBB session
