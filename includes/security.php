@@ -21,6 +21,12 @@ function logEntry($entry){
 
 function userPermissions($type,$pageId=""){
 	global $user,$page, $mySQLLink;
+
+    // if we need to, query for the currently logged in user
+    if(!isset($user)){
+        $user = get_logged_in();
+    }
+
 	//if pageId is not specified, use current one
 	if($pageId == "")
 		$pageId = $page->pageId;

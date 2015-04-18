@@ -4,18 +4,9 @@
     name='textarea_{{pageId}}_{{modId}}'
     id='textarea_{{pageId}}_{{modId}}'>
 
-".htmlentities({{code}})."
+{{code}}
 </textarea>
 
 <p>
-<button onclick="saveMod({{pageId}}, {{modId}},{code:$('#textarea_{{pageId}}_{{modId}}').val()})">Save</button>
-<script type='text/javascript'>
-  $(function() {
-    $('#textarea_{{pageId}}_{{modId}}').htmlarea({
-      loaded: function(){
-	    this.showHTMLView();
-	  }
-    });
- });
-</script>
+<button onclick="saveMod({{pageId}},{{modId}},{code:$('#textarea_{{pageId}}_{{modId}}').val()})">Save</button>
 [[END IF]]

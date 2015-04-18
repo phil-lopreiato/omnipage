@@ -16,12 +16,13 @@
 function parseSkin($fields,$loc,$cases = array()){
 	global $currentSkin,$editable,$user,$root_path;
 	$skinPath = mysql_fetch_array(mysql_query("SELECT `path`,`skinId` FROM `skins` WHERE `name` = '".mysql_real_escape_string($currentSkin)."'"));
-	if(file_exists($root_path."/skins/".$currentSkin."/".$loc.".html")){
+    if(file_exists($root_path."/skins/".$currentSkin."/".$loc.".html")){
 		$source = file_get_contents($root_path."/skins/".$skinPath['path']."/".$loc.".html");
 	}else{
 		$source = getGhost($skinPath['skinId'],$loc);
 	}
-	//parse IFs
+
+    //parse IFs
 	$cases["EDITABLE"]=$editable;
     $cases["LOGGEDIN"]=(isset($user)&&$user->data["user_id"]>0);
 
@@ -29,19 +30,18 @@ function parseSkin($fields,$loc,$cases = array()){
 		if($bool==true&&$bool!="0"){
 			$source = preg_replace("%\[\[IF $case\]\]"."([^\[\[]+)"."\[\[END IF\]\]%s","$1",$source);
 			$source = preg_replace("%\[\[IF NOT $case\]\]"."([^\[\[]+)"."\[\[END IF\]\]%s","",$source);
-			}
-		else{
+		}else{
 			$source = preg_replace("%\[\[IF $case\]\]"."([^\[\[]+)"."\[\[END IF\]\]%s","",$source);
 			$source = preg_replace("%\[\[IF NOT $case\]\]"."([^\[\[]+)"."\[\[END IF\]\]%s","$1",$source);
-			}
 		}
+	}
 	//replace fields
 	$search = array("{{skinRoot}}","{{currentSkin}}");
 	$replace = array("/omni/skins/".$currentSkin,$currentSkin);
 	foreach($fields as $key => $value){
 		$search[] = "{{".$key."}}";
 		$replace[] = $value;
-		}
+	}
 	return str_replace($search, $replace, $source);
 }
 

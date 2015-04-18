@@ -14,6 +14,7 @@ function get_logged_in(){
             if($testHash == $_SESSION['login_session']){
                 global $user;
                 $user = new User($row);
+                return $user;
             }
         }
     }

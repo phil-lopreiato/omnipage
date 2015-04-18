@@ -37,15 +37,16 @@ function renderModules($pageId){
 
 // render edit state of module, given its UID
 function renderEdit($modId){
-	global $mySQLLink;
+	global $mySQLLink, $editable;
     $modId = mysql_real_escape_string($modId);
 
     // fetch the module from the db
-	$query = mysql_query("SELECT `modType` FROM `modules` WHERE `modUID` = '$modId'", $mySQLLink) or die(mysql_error());
+	$query = mysql_query("SELECT `modType`,`pageId` FROM `modules` WHERE `modUID` = '$modId'", $mySQLLink) or die(mysql_error());
 	$row = mysql_fetch_array($query);
 
     // get the module properties
 	$properties = getProps($modId);
+    $editable = userPermissions(1, $row['pageId']);
 
     // render the edit state
 	return getModule($row["modType"])->renderEdit($properties);
@@ -62,8 +63,23 @@ function getProps($modId){
 	while($propRow = mysql_fetch_array($propQuery)){
 		$properties[$propRow["propName"]]=$propRow["propValue"];
 	}
+
+    $modQuery = mysql_query("SELECT `pageId` from `modules` WHERE `modUID` = '".$modId."'") or die(mysql_error());
+    if($mod = mysql_fetch_assoc($modQuery)){
+        $properties["pageId"]=$mod['pageId'];
+    }
+
 	$properties["modId"]=$modId;
 	return $properties;
+}
+
+function getModuleById($modId){
+    global $mySQLLink;
+    $query = mysql_query("SELECT `modType` from `modules` WHERE `modUID` = '".mysql_real_escape_string($modId)."'") or die(mysql_error());
+    if($row = mysql_fetch_assoc($query)){
+        return getModule($row['modType']);
+    }
+    return false;
 }
 
 /* Get a new module object for a given mod id

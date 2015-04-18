@@ -20,6 +20,11 @@ function setVariables($pageId, $modId, $variables){
     $pageId = mysql_real_escape_string($pageId);
     $modId = mysql_real_escape_string($modId);
 
+    // get user if needed
+    if(!isset($user)){
+        $user = get_logged_in();
+    }
+
     //put old edit data into database
 	$propQuery = mysql_query("SELECT * FROM `moduleProps` WHERE `modId` = '$modId'",$mySQLLink) or die(mysql_error());
 	while($propRow = mysql_fetch_array($propQuery)){
@@ -28,7 +33,7 @@ function setVariables($pageId, $modId, $variables){
 	}
 
     // create a new 'edit' event in editHistory table
-	$string = "INSERT INTO editHistory (modId, time, ip, user) VALUES ('$modId','".time()."','".$_SERVER['REMOTE_ADDR']."','".$user->data["username_clean"]."')";
+	$string = "INSERT INTO editHistory (modId, time, ip, userId) VALUES ('$modId','".time()."','".$_SERVER['REMOTE_ADDR']."','".$user->data["user_id"]."')";
 	mysql_query($string, $mySQLLink)or die(mysql_error());
     $editId = mysql_insert_id($mySQLLink);
 
@@ -47,7 +52,7 @@ function setVariables($pageId, $modId, $variables){
 
         // if the property already exists then update it, else add it anew
 		if(mysql_num_rows($exist) > 0){
-			mysql_query("UPDATE `moduleProps` SET `propValue` = '$value' WHERE `modId` = '$modid' AND `propName` = '$key'", $mySQLLink)or die(mysql_error());
+			mysql_query("UPDATE `moduleProps` SET `propValue` = '$value' WHERE `modId` = '$modId' AND `propName` = '$key'", $mySQLLink)or die(mysql_error());
 		}else{
 			mysql_query("INSERT INTO `moduleProps` (modId, propName, propValue) VALUES ('$modId','$key','$value')", $mySQLLink)or die(mysql_error());
 		}

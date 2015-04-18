@@ -23,7 +23,8 @@ class mod_HTML {
 
 	public function renderEdit($properties) {
 		global $currentSkin;
-	    return parseSkin($properties, "mod_html_edit.html");
+        $properties['code'] = htmlentities($properties['code']);
+	    return parseSkin($properties, "mod_html_edit");
     }
 
 	public function edit($properties) {

@@ -5,7 +5,7 @@
    * License text can also be found at: http://www.opensource.org/licenses/mit-license.php  *
    * Copyright (c) 2011 Avon Robotics                                                       *
    ******************************************************************************************
-   
+
    ******************************************************************************************
    * addModule.php                                                                          *
    * This file  adds a module on a given page												*
@@ -43,7 +43,7 @@ for($i=0;$i<sizeof($mod->sqlNames);$i++){
 	mysql_query("INSERT INTO `moduleProps` VALUES ('$count','".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($mod->sqlNames[$i])."','".mysql_real_escape_string($mod->sqlDefaults[$i])."','0')") or die(mysql_error());
 	echo "INSERT INTO `moduleProps` VALUES ('$count','".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($mod->sqlNames[$i])."','".mysql_real_escape_string($mod->sqlDefaults[$i])."','0')";
 	}
-	
+
 logEntry("Added mod '".$mod->title."' in pageId '".$_GET["pageId"]."'");
 }
 
@@ -56,7 +56,7 @@ if($_GET["mode"]=="list"){
 		$skinVars["path"] = $mod->path;
 		$skinVars["title"] = $mod->title;
 		$skinVars["desc"] = $mod->description;
-		
+
 		$output.=parseSkin($skinVars,"module_list_line");
 	}
 	echo parseSkin(array("output"=>$output),"module_list");

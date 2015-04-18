@@ -17,11 +17,14 @@
 include "../includes/common.php";
 
 mySQLConnect();
+
 $modId = $_GET["modId"];
 
 // quit here if the user doesn't have edit permission on this page
-if(!userPermissions(1,$pageId))
-exit;
+if(!userPermissions(1,$pageId)){
+    echo "No permission";
+    exit;
+}
 
 switch($_GET['mode']){
 	case "renderEdit":
@@ -29,11 +32,11 @@ switch($_GET['mode']){
 		break;
 
 	case "saveMod":
-		$mod = getModule($modId);
+		$mod = getModuleById($modId);
 		$properties = array();
 		foreach($_GET as $k => $v){
 			if($k != 'mode')
-			$properties[$k] = $v;
+			    $properties[$k] = $v;
 		}
 		$mod->edit($properties);
 		logEntry("Edited mod id $modId on page $pageId");
@@ -47,7 +50,7 @@ switch($_GET['mode']){
 		break;
 
 	case "showMod":
-		$mod = getModule($modId);
+		$mod = getModuleById($modId);
 		$properties = getProps($modId);
 		echo $mod->render($properties);
 		break;

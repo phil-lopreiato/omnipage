@@ -50,11 +50,11 @@ function selectEdit(){
             });
         }});
     }
-function saveMod(modId,properties){
+function saveMod(pageId,modId,properties){
 
     window.pageIdd = pageId;
-    window.instanceId = instanceId;
     properties.modId = modId;
+    properties.pageId = pageId;
     properties.mode = "saveMod";
     var jqxhr = $.get("/omni/ajax/modEdit.php",properties,
     function(data){
