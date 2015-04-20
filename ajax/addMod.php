@@ -27,21 +27,13 @@ if($_GET["mode"]=="add"){
 $mod =  getModule($_GET["modId"]);
 
 //create `modules` table row
-
-//but first get number of mods already on page from `instance` and `order`
-$query = mysql_query("SELECT `instanceId` FROM `modules` WHERE `pageId` = '".mysql_real_escape_string($_GET["pageId"])."' ORDER BY `instanceId` DESC",$GLOBALS["mySQLLink"]);
-$count = mysql_fetch_array($query);
-$count = $count["instanceId"]+1;
-
-//now finally create row
-$query = mysql_query("INSERT INTO `modules` VALUES ('".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($_GET["modId"])."','$count','$count','0')");
-
+$query = mysql_query("INSERT INTO `modules` (`pageId`,`modType`,`order`,`deleted`) VALUES ('".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($_GET["modId"])."','10','0')", $mySQLLink)or die(mysql_error());
+$modId = mysql_insert_id($mySQLLink);
 //last, make properties
 
 $mod->setup();
 for($i=0;$i<sizeof($mod->sqlNames);$i++){
-	mysql_query("INSERT INTO `moduleProps` VALUES ('$count','".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($mod->sqlNames[$i])."','".mysql_real_escape_string($mod->sqlDefaults[$i])."','0')") or die(mysql_error());
-	echo "INSERT INTO `moduleProps` VALUES ('$count','".mysql_real_escape_string($_GET["pageId"])."','".mysql_real_escape_string($mod->sqlNames[$i])."','".mysql_real_escape_string($mod->sqlDefaults[$i])."','0')";
+	mysql_query("INSERT INTO `moduleProps` (`modId`,`propName`,`propValue`) VALUES ('$modId','".mysql_real_escape_string($mod->sqlNames[$i])."','".mysql_real_escape_string($mod->sqlDefaults[$i])."')") or die(mysql_error());
 	}
 
 logEntry("Added mod '".$mod->title."' in pageId '".$_GET["pageId"]."'");
