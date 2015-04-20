@@ -121,7 +121,7 @@ function getEditData(mod,id){
 }
 
 function revertEdit(mod, editId){
-    $.get("/omni/ajax/modHistory.php",{mod:modId,id:editId,mode:"restoreEdit"},
+    $.get("/omni/ajax/modHistory.php",{modId:mod,id:editId,mode:"restoreEdit"},
     function(data){
         alert(data);
         showMod(mod);

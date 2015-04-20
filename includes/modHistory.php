@@ -33,7 +33,7 @@ function setVariables($pageId, $modId, $variables){
 	}
 
     // create a new 'edit' event in editHistory table
-	$string = "INSERT INTO editHistory (modId, time, ip, userId) VALUES ('$modId','".time()."','".$_SERVER['REMOTE_ADDR']."','".$user->data["user_id"]."')";
+	$string = "INSERT INTO editHistory (modId, ip, userId) VALUES ('$modId','".$_SERVER['REMOTE_ADDR']."','".$user->data["user_id"]."')";
 	mysql_query($string, $mySQLLink)or die(mysql_error());
     $editId = mysql_insert_id($mySQLLink);
 
@@ -67,18 +67,18 @@ function setVariables($pageId, $modId, $variables){
 function getEditHistory($modId){
     $modId = mysql_real_escape_string($modId);
 	$output = "";
-	$editQuery = mysql_query("SELECT * FROM `editHistory` WHERE `modId` = '$modId' ORDER BY editId ASC")or die(mysql_error());
+	$editQuery = mysql_query("SELECT * FROM `editHistory` NATURAL JOIN `users` WHERE `modId` = '$modId' ORDER BY editId ASC")or die(mysql_error());
 	if(mysql_num_rows($editQuery)<1){
 		$output .= "<p>$modId</p><p>This module has no edit history.</p>";
 	}else{
 		$output .= "<table style='width:100%' id='editHistory_$modId' name='editHistory_$modId'>";
-		$output .= "<tr id='editHistory_".$modId."_headerRow' name='editHistory_".$modId."_headerRow' style='text-decoration:bold;'><td>Edit Time</td><td>User</td><td>IP</td><td>Show/Hide Edit Data</td></tr>";
+		$output .= "<tr id='editHistory_".$modId."_headerRow' name='editHistory_".$modId."_headerRow' style='text-decoration:bold;'><th>Edit Time</th><th>User</th><th>IP</th><td>Show/Hide Edit Data</th></tr>";
 		while($row = mysql_fetch_assoc($editQuery)){
 			$output .= "<tr name='edit_".$row['editId']."' id='edit_".$row['editId']."'>";
-			$output .= "<td name='edit_".$row['editId']."_time'>".(date('m\-d\-Y \a\t G\:i:s',$row['time']))."</td>";
-			$output .= "<td name='edit_".$row['editId']."_user'>".$row['user']."</td>";
+			$output .= "<td name='edit_".$row['editId']."_time'>".$row['time']."</td>";
+			$output .= "<td name='edit_".$row['editId']."_user'>".$row['userName']."</td>";
 			$output .= "<td name='edit_".$row['editId']."_ip'>".$row['ip']."</td>";
-			$output .= "<td name='edit_".$row['editId']."_select'><a href='javascript:void(0)' onclick='getEditData(".$pageId.",".$instanceId.",".$row['editId'].")'>View Edit Data</a></td>";
+			$output .= "<td name='edit_".$row['editId']."_select'><a href='javascript:void(0)' onclick='getEditData(".$modId.",".$row['editId'].")'>View Edit Data</a></td>";
 			$output .= "</tr>";
 		}
 		$output .= "</table><button name='return' id='return' onclick='showMod($modId)'>Return to Module</button>";
@@ -94,12 +94,12 @@ function getEditInfo($modId, $editId){
     $editId = mysql_real_escape_string($editId);
     $output = "";
 	$q = mysql_query("SELECT * FROM `modulePropsHistory` WHERE editId = '$editId'")or die(mysql_error());
-	$output .= "<table id='editData_".$editId."' name='editData_".$editId."' style='width:100%;'><tr style='text-decoration:bold;'><td>Property Name</td><td>Property Value</td></tr>";
+	$output .= "<table id='editData_".$editId."' name='editData_".$editId."' style='width:100%;'><tr style='text-decoration:bold;'><th>Property Name</th><th>Property Value</th></tr>";
 	while($row = mysql_fetch_assoc($q)){
 		$output .= "<tr><td style='vertical-align:text-top;'>".$row['propName']."</td><td><div style='overflow:auto;width:100%'>".htmlentities($row['propValue'])."</div></td></tr>";
 	}
 	$output .= "</table>";
-	$mod = mysql_fetch_array(mysql_query("SELECT * FROM modules WHERE `modUID` = '$modId'"))or die(mysql_error());
+	$mod = mysql_fetch_array(mysql_query("SELECT `deleted` FROM modules WHERE `modUID` = '$modId'"))or die(mysql_error());
 	$output .= "<button name='revertButton' id='revertButton' onclick='revertEdit($modId, $editId)'>".($mod['deleted']==0?"Restore Module to this State":"Undelete Module to this State")."</button>";
 	return $output;
 }
@@ -111,18 +111,20 @@ function restoreEdit($modId, $editId){
     $editid = mysql_real_escape_string($editId);
     $out = "";
 
-	$q = mysql_fetch_array(mysql_query("SELECT * FROM modules WHERE `modUID` = '$modId'", $mySQLLink))or die(mysql_error());
-	if($q['deleted']==1){
+    $s = "SELECT `deleted`,`pageId` FROM modules WHERE `modUID` = '$modId'";
+    $q = mysql_query($s, $mySQLLink)or die(mysql_error());
+    $mod = mysql_fetch_array($q)or die(mysql_error());
+	if($mod['deleted']==1){
 		$res = mysql_query("UPDATE modules SET deleted = '0' WHERE `modUID` = '$modId'", $mySQLLink)or die(mysql_error());
 	}
 
 	$s = "SELECT * FROM `modulePropsHistory` WHERE `editId` = '".$editId."'";
-	$q = mysql_query(mysql_real_escape_string($s),$mySQLLink)or die(mysql_error());
+	$q = mysql_query($s,$mySQLLink)or die(mysql_error());
 	$props = array();
-	while($propRow = mysql_fetch_array($q,MYSQL_ASSOC)){
+	while($propRow = mysql_fetch_assoc($q)){
 		$props[$propRow["propName"]]=$propRow["propValue"];
 	}
-	$update = setVariables($modId, $props);
+	$update = setVariables($mod['pageId'], $modId, $props);
 	if($update){
 	    logEntry("Reverted mod id $modId to edit state $editId");
 	    $out .= "Sucessfully restored module";

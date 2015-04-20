@@ -17,15 +17,14 @@ include "../includes/common.php";
 
 mySQLConnect();
 
-$pageId = $_GET["pageId"];
-$instanceId = $_GET["instanceId"];
 
 if(!userPermissions(1,$pageId))
 exit;
 
+$modId = $_GET["modId"];
+
 switch($_GET['mode']){
 case "showMod":
-		$modId = $_GET["modId"];
 		$mod = getModule($modId);
 		$properties = getProps($_GET['modId']);
 		echo $mod->render($properties);

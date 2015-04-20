@@ -3,7 +3,10 @@
 include_once "user.php";
 
 function get_logged_in(){
-    session_start();
+    /* Start new session, if not already done */
+    if(session_status() == PHP_SESSION_NONE){
+        session_start();
+    }
     if(isset($_SESSION['login_user']) && isset($_SESSION['login_session'])){
         global $mySQLLink;
         $str = "SELECT * FROM `users` WHERE `userName` = '".mysql_real_escape_string($_SESSION['login_user'])."' LIMIT 1";
