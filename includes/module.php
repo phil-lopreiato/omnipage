@@ -94,43 +94,16 @@ function getModule($modType){
 			return new mod_HTML();
 			break;
 		case 1:
-			return new mod_bbcode();
-			break;
-		case 2:
-			return new mod_like();
-			break;
-		case 3:
 			return new mod_controlPanel();
 			break;
-		case 4:
+		case 2:
 			return new mod_sitemap();
 			break;
-		case 5:
+		case 3:
 			return new mod_calendar();
 			break;
-		case 6:
-			return new mod_forumsActivity();
-			break;
-		case 7:
-			return new mod_uploader();
-			break;
-		case 8:
-			return new mod_gallery();
-			break;
-		case 9:
-			return new mod_filetree();
-			break;
-		case 10:
-			return new mod_news();
-			break;
-		case 11:
-			return new mod_video();
-			break;
-		case 12:
+		case 4:
 			return new mod_simpleScript();
-			break;
-		case 13:
-			return new mod_blog();
 			break;
 	}
 
