@@ -16,17 +16,17 @@
 class mod_sitemap {
 
 	private function listChildren($parent, $level, $url){
-		
-		$query = mysql_query("SELECT * FROM `pages` WHERE `deleted` = '0' AND `parentId` = '$parent' ORDER BY `order` ASC, `title` ASC") or die(mysql_error());
+
+		$query = mysql_query("SELECT `pageId`,`title` FROM `pages` WHERE `deleted` = '0' AND `parentId` = '$parent' ORDER BY `order` ASC, `title` ASC") or die(mysql_error());
 		while($row = mysql_fetch_array($query)){
-			if($row["id"]!=0 && userPermissions(0,$row["id"])){
-			$title = str_replace(" ","_",$row['title']);
-            $this->output .= "<li><a href='/o/".$url.$title."'>".$row['title']."</a>";
-            $this->output .= "<ul>";
-            $this->listChildren($row["id"],$level+1,$url.$title."/");
-			
-            $this->output .= "</ul>";
-			$this->output .= "</li>";
+			if($row["pageId"]!=0 && userPermissions(0,$row["pageId"])){
+			    $title = str_replace(" ","_",$row['title']);
+                $this->output .= "<li><a href='/o/".$url.$title."'>".$row['title']."</a>";
+                $this->output .= "<ul>";
+                $this->listChildren($row["pageId"],$level+1,$url.$title."/");
+
+                $this->output .= "</ul>";
+			    $this->output .= "</li>";
 		   }
 		}
 	}
@@ -45,12 +45,12 @@ class mod_sitemap {
 <ul>
 ";
 	$url = "";
-	
+
 	$this->listChildren(0,1,$url);
-	
+
 	$this->output .= "</ul></div>";
 	return $this->output;
-	
+
 
 	}
 
@@ -61,14 +61,14 @@ class mod_sitemap {
 	public function edit($properties) {
 	return "This module has no editable properties.";
 	}
-	
+
 	var $sqlNames, $sqlDefaults;
-	
+
 	public function setup() {
 		$this->sqlNames = array();
 		$this->sqlDefaults = array();
 	}
-	
-	
+
+
 }
 ?>

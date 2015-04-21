@@ -18,67 +18,70 @@ class url{
 
 	//initialize
 	public function init(){
-	global $mySQLLink,$domain;
+	    global $mySQLLink,$domain;
 
-	//full url
-	$this->fullUrl = $domain.$_SERVER['REQUEST_URI'];
+	    //full url
+	    $this->fullUrl = $domain.$_SERVER['REQUEST_URI'];
 
-	//everything after ".org"
-	$this->url = $_SERVER['REQUEST_URI'];
-    $url = $_SERVER['REQUEST_URI'];
+	    //everything after ".org"
+	    $this->url = $_SERVER['REQUEST_URI'];
+        $url = $_SERVER['REQUEST_URI'];
 
-	//bug fix: if only "/o/?sid=blah", add home
-	if(substr($url,0,4)=="/o/?")
-	    $url = "/o/home?".substr($url,4);
+	    //bug fix: if only "/o/?sid=blah", add home
+	    if(substr($url,0,4)=="/o/?")
+	        $url = "/o/home?".substr($url,4);
 
-	$explode = explode("/",$url);
+	    $explode = explode("/",$url);
 
-	$error404 = false;
+	    $error404 = false;
 
-    // default to a root page
-	$parentId = 0;
+        // default to a root page
+	    $parentId = 0;
 
-	if($explode[sizeof($explode)-1]=="")
-	    unset($explode[sizeof($explode)-1]);
+	    if($explode[sizeof($explode)-1]=="")
+	        unset($explode[sizeof($explode)-1]);
 
-	$explode[sizeof($explode)-1] = explode("?",$explode[sizeof($explode)-1]);
+	    $explode[sizeof($explode)-1] = explode("?",$explode[sizeof($explode)-1]);
 
-	$explode[sizeof($explode)-1] = $explode[sizeof($explode)-1][0];
+	    $explode[sizeof($explode)-1] = $explode[sizeof($explode)-1][0];
 
-    // go through url parts and make sure all pages exist
-	for($i=2;$i<sizeOf($explode);$i++){
-        $str = "SELECT * FROM `pages` WHERE `deleted` = '0' AND `parentId` = '".$parentId."' AND `title` LIKE '".mysql_real_escape_string(str_replace("_"," ",$explode[$i]),$mySQLLink)."'";
-        $query = mysql_query($str,$GLOBALS["mySQLLink"]) or die(mysql_error());
+        // go through url parts and make sure all pages exist
+	    for($i=2;!$this->error404 && $i<sizeOf($explode);$i++){
+            $str = "SELECT * FROM `pages` WHERE `deleted` = '0' AND `parentId` = '".$parentId."' AND `title` LIKE '".mysql_real_escape_string(str_replace("_"," ",$explode[$i]))."'";
+            $query = mysql_query($str,$GLOBALS["mySQLLink"]) or die(mysql_error());
 
-		$row = mysql_fetch_array($query);
+            if(mysql_num_rows($query) == 0){
+                $this->error404 = true;
+                break;
+            }
 
-		$error404 = $row ? false : true;
+		    $row = mysql_fetch_array($query);
+		    $parentId = $row["pageId"];
+		    $this->title = $row["title"];
+	    }
 
-		$parentId = $row["pageId"];
-		$this->title = $row["title"];
+	    if(sizeOf($explode)==2||sizeOf($explode)==1){
+		    $query = mysql_query("SELECT * FROM `pages` WHERE `deleted` = '0' AND `title` LIKE 'home'",$GLOBALS["mySQLLink"]) or die(mysql_error());
 
-	}
+		    $row = mysql_fetch_array($query);
 
-	if(sizeOf($explode)==2||sizeOf($explode)==1){
-		$query = mysql_query("SELECT * FROM `pages` WHERE `deleted` = '0' AND `title` LIKE 'home'",$GLOBALS["mySQLLink"]) or die(mysql_error());
+		    $parentId = $row["pageId"];
+		    $this->title = $row["title"];
 
-		$row = mysql_fetch_array($query);
+        }
 
-		$parentId = $row["pageId"];
-		$this->title = $row["title"];
+        if($this->error404) return;
 
+	    //redirect
+	    if(isset($row) && strlen($row["redirect"])>0){
+		    header("location:".$row["redirect"]);
+		    exit;
+	    }
+
+	    $this->pageId = $parentId;
+
+	    $this->privatePage = $row["private"]?true:false;
     }
-
-	//redirect
-	if(strlen($row["redirect"])>0){
-		header("location:".$row["redirect"]);
-		exit;
-	}
-
-	$this->pageId = $parentId;
-
-	$this->privatePage = $row["private"]?true:false;
-}
 
 	//return breadcrumbs for page
 	public function breadCrumbs($page = -1){

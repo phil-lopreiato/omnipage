@@ -33,7 +33,6 @@ $page->init();
 $editable = userPermissions(1);
 
 if($page->error404 || !userPermissions(0)){
-    echo "404";
 	header("HTTP/1.0 404 Not Found");
 	echo file_get_contents($domain."/omni/error.php?errorCode=404");
 	exit;
