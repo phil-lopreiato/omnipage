@@ -152,25 +152,14 @@ $(document).ready(function(){
 
                     //update on server
                     newOrderMain = new Array();
-                    newOrderSecond = new Array();
                     $("DIV").each(function(){
                         if($(this).attr("id").substr(0,4)=="mod_"){
-                            pageIdd = $(this).attr("id").split("_")[1];
-                            var instanceId = $(this).attr("id").split("_")[2];
+                            var modId = $(this).attr("id").split("_")[1];
                             //add to main order array
-                            if(pageIdd!=0)
-                            newOrderMain[newOrderMain.length]=instanceId;
-                            //add to second order array (right column)
-                            else
-                            newOrderSecond[newOrderSecond.length]=instanceId;
+                            newOrderMain[newOrderMain.length]=modId;
                         }});
-                    alert(newOrderMain);
                     //update main order
                     $.get("/omni/ajax/resort.php",
-                    {order:newOrderMain.join(","),pageId:pageId});
-                    //update second order
-                    $.get("/omni/ajax/resort.php",
-                    {order:newOrderSecond.join(","),pageId:0});
-                    }
-            });
+                    {order:newOrderMain.join(",")});
+            }});
     })

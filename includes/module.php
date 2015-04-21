@@ -111,9 +111,8 @@ function getModule($modType){
 	return false;
 }
 
-// delete module (or all modules on a page)
-function deleteMod($pageId, $modId=-1){
-	mysql_query("UPDATE `modules` SET deleted = '1' WHERE `pageId` = '".mysql_real_escape_string($pageId)."' ".($modId==-1?"":("AND `modUID` = '".mysql_real_escape_string($modId)."'")))or die(mysql_error());
-	mysql_query("UPDATE `moduleProps` SET deleted = '1' WHERE `pageId` = '".mysql_real_escape_string($pageId)."' ".($modId==-1?"":("AND `modUID` = '".mysql_real_escape_string($modId)."'")))or die(mysql_error());
+// delete module
+function deleteMod($modId){
+	mysql_query("UPDATE `modules` SET deleted = '1' WHERE `modUID` = '".mysql_real_escape_string($modId)."'")or die(mysql_error());
 }
 ?>

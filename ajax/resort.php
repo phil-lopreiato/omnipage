@@ -19,14 +19,13 @@ include "../includes/common.php";
 mySQLConnect();
 
 $order = explode(",",$_GET["order"]);
-$pageId = $_GET["pageId"];
-$instanceIds = array();
+$modIds = array();
 
 if(!userPermissions(1,$_GET["pageId"]))
 exit;
 
 for($i=0;$i<sizeOf($order);$i++){
-	mysql_query("UPDATE `modules` SET `order` = '".$i."' WHERE `instanceID` = '".$order[$i]."' AND `pageId` = '".$pageId."'")  or die(mysql_error());
+	mysql_query("UPDATE `modules` SET `order` = '".$i."' WHERE `modUID` = '".$order[$i]."'")  or die(mysql_error());
 	}
 logEntry("Resorted mods on pageId '".$pageId."'");
 ?>

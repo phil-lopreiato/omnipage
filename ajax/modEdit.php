@@ -45,7 +45,7 @@ switch($_GET['mode']){
 		break;
 
 	case "delete":
-		deleteMod($pageId, $modId);
+		deleteMod($modId);
 		logEntry("Deleted mod id $modId from pageId $pageId");
 		break;
 
