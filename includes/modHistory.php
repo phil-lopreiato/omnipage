@@ -54,7 +54,7 @@ function setVariables($pageId, $modId, $variables){
 		if(mysql_num_rows($exist) > 0){
 			mysql_query("UPDATE `moduleProps` SET `propValue` = '$value' WHERE `modId` = '$modId' AND `propName` = '$key'", $mySQLLink)or die(mysql_error());
 		}else{
-			mysql_query("INSERT INTO `moduleProps` (modId, propName, propValue) VALUES ('$modId','$key','$value')", $mySQLLink)or die(mysql_error());
+			mysql_query("INSERT INTO `moduleProps` (modId, propName, propValue) VALUES ('$modId','$key','".mysql_real_escape_string($value)."')", $mySQLLink)or die(mysql_error());
 		}
 	}
 
