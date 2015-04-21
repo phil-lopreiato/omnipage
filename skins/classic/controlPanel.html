@@ -2,32 +2,6 @@
 
 <!-- HTML WYSIWYG - jHTMLArea: http://jhtmlarea.codeplex.com/ -->
 
-<script type="text/javascript" src="http://uberbots.org/omni/skins/{{currentSkin}}/scripts/jquery-validator.js"></script>
-
-
-<script type="text/javascript">
-$(document).ready(function(){
-$("#smsUpdate").validate(
-{rules:{
-message:{maxlength:160,required:true}
-}
-});
-
-$("#tweet").validate(
-{rules:{
-tweet:{maxlength:140,required:true}
-}
-});
-
-$("#addSkin").validate(
-{rules:{
-skinName:{required:true},
-skinPath:{required:true}
-}
-});
-
-});
-</script>
 <script type="text/javascript">
  $(function() {
  $("#message").htmlarea({
@@ -56,7 +30,7 @@ $(document).ready(function(){
 	$("#pageSelect").change(function(){
 		$("#confirmDel").attr("checked",false);
 		});
-		
+
 	$("#delForm").submit(function(){
 		if($("#confirmDel").attr("checked"))
 			return true;
@@ -65,7 +39,7 @@ $(document).ready(function(){
 			return false;
 			}
 	});
-	
+
 	$("#specialPermission").submit(function(){
 		if($("#confirmPermission").attr("checked"))
 			return true;
@@ -75,8 +49,8 @@ $(document).ready(function(){
 			}
 	});
 
-	
-			
+
+
 });
 
 function getPageMods(id){
@@ -104,19 +78,18 @@ function find_username(url)
 	popup(url, 760, 570, '_usersearch');
 	return false;
 }
- 
+
 function popup(url, width, height, name)
 {
 	if (!name)
 	{
 		name = '_popup';
 	}
- 
+
 	window.open(url.replace(/&amp;/g, '&'), name, 'height=' + height + ',resizable=yes,scrollbars=yes, width=' + width);
 	return false;
 }
 </script>
-<div title="Help" id="dialog">Dialog</div>
 <h1>Administrator Control Panel</h1>
 
 <div class="accordion">
