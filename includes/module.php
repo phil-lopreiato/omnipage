@@ -115,4 +115,9 @@ function getModule($modType){
 function deleteMod($modId){
 	mysql_query("UPDATE `modules` SET deleted = '1' WHERE `modUID` = '".mysql_real_escape_string($modId)."'")or die(mysql_error());
 }
+
+function deleteModsInPage($pageId){
+    $pageId = mysql_real_escape_string($pageId);
+    mysql_query("UPDATE `modules` SET `deleted` = '1' WHERE `pageId` = '$pageId'") or die(mysql_error());
+}
 ?>

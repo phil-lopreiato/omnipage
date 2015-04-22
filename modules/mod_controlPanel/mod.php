@@ -56,27 +56,8 @@ class mod_controlPanel {
 
 			//delete a page in SQL
 			case "delPage":
-				//check that page has been selected
-				if($_POST['page'] == '-1'){
-					$message = "Please select a page to delete";
-				}else{
-					//check confirmation (not really needed, javascript does this already)
-					if($_POST['confirmDel']=="on"){
-						$name = mysql_query("SELECT * FROM `pages` WHERE `id` = '".mysql_real_escape_string($_POST['page'])."'",$GLOBALS["mySQLLink"]);
-						$row = mysql_fetch_array($name);
-						//delete pages in SQL
-						$query = mysql_query("UPDATE `pages` SET `deleted` = '1' WHERE `id` = '".mysql_real_escape_string($_POST['page'])."'",$GLOBALS["mySQLLink"]);
-						//delete modules assosciated with that page
-						deleteMod($_POST['page']);
-						//log the deletion
-						logEntry("deleted page id ".$_POST['page']." titled ".$row["title"]);
-						$message = $query?"Deleted sucessfully!":mysql_error();
-						}
-						else{
-						$message="You need to confirm the deletion.";
-						}
-				}
-			break;
+				$message = deletePage($_POST['page']);
+    			break;
 
 			//modify a page in SQL
 			case "editPage":

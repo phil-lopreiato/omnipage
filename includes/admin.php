@@ -89,6 +89,24 @@ function updatePage($pageId, $parentId, $title, $redirect, $order, $inherentPerm
     return $query?"Page updated successfully":mysql_error();
 }
 
+/**
+ * Deletes a page
+ * Precondition: mySQLConnect() has been called
+*/
+function deletePage($pageId){
+    $pageId = mysql_real_escape_string($pageId);
+
+    if(!is_numeric($pageId) || $pageId < 0) return "Invalid page";
+
+    $str = "UPDATE `pages` SET `deleted` = '1' WHERE `pageId` = '$pageId'";
+    $query = mysql_query($str);
+    if($query){
+        deleteModsInPage($pageId);
+        logEntry("Deleted page id '$pageId'");
+    }
+    return $query?"Page deleted":mysql_error();
+}
+
 function checkTitle($title){
 	return preg_match("%\A[A-Za-z0-9\s]{1,20}\Z%",$title);
 }
