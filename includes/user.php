@@ -16,6 +16,7 @@ class User{
         $this->data['user_email'] = $this->email;
         $this->data['group_id'] = 0; // Groups are not yet implemented
         $this->data['session_id'] = make_session_hash($this->userName, $this->hash);
+        $this->data['user_ip'] = $_SERVER['REMOTE_ADDR'];
     }
 
     public function configure_session(){

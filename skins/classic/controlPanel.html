@@ -18,18 +18,30 @@ $(document).ready(function(){
 	$("#permissions").hide();
 	$('#logList').hide();
 	$('#oldLogs').click(function(){$('#logList').toggle()});
-	$('#findUser').click(function(){popup('http://uberbots.org/forums/memberlist.php?mode=searchuser&amp;form=select_user&amp;field=userSelect&amp;select_single=true', 760, 570, '_usersearch');
-	return false;});
 	$(".showPermissions").click(function(){$("#permissions").toggle()});
 	$("#dialog").dialog({autoOpen:false,show:"slide",hide:"slide"});
 	$("#archLog").click(function(){
 		var conf = confirm('Are you sure you want to archive the logs?', 'Confirmation');
 		if(conf)
-			window.location = "http://uberbots.org/omni/actions/logArch.php?cpanel";
+			window.location = "/omni/actions/logArch.php?cpanel";
 	});
 	$("#pageSelect").change(function(){
 		$("#confirmDel").attr("checked",false);
-		});
+	});
+
+    $("#pageEditSelect").change(function(){
+        // load page details
+        $.post("/omni/ajax/pageInfo.php", {pageId:$("#pageEditSelect").val()}, function(data){
+            var info = $.parseJSON(data);
+            $("#newTitle").val(info['title']);
+            $("#newParent").val(info['parentId']);
+            $("#newMenuOrder").val(info['order']);
+            $("#newRedirectBox").val(info['redirect']);
+            $("#newInherent").attr("checked", info['inheritPermissions']==1);
+            $("#newPrivate").attr("checked", info['private']==1);
+            $("#newHideBox").attr("checked", info['hide']==1);
+        });
+    });
 
 	$("#delForm").submit(function(){
 		if($("#confirmDel").attr("checked"))
@@ -39,6 +51,8 @@ $(document).ready(function(){
 			return false;
 			}
 	});
+
+    $("#addSkinButton")
 
 	$("#specialPermission").submit(function(){
 		if($("#confirmPermission").attr("checked"))
@@ -73,12 +87,6 @@ function getPageMods(id){
 	});
 }
 
-function find_username(url)
-{
-	popup(url, 760, 570, '_usersearch');
-	return false;
-}
-
 function popup(url, width, height, name)
 {
 	if (!name)
@@ -104,7 +112,7 @@ function popup(url, width, height, name)
 <p><label for="skinParent" style="width:150px;display:inline-block;">Skin Parent: <a href="#" onclick="$('#dialog').html('This is the parent for the new skin. If the new skin does not contain a certain skin file, it will be searched for in the directory of the parent. This allows for the ghosting of skins to others.').dialog('open');">?</a></label><select name="skinParent" id="skinParent">{{skins}}</select></p>
 
 <input type="hidden" name="mode" value="addSkin" />
-<input type="submit" value="Add Skin"  />
+<input type="submit" value="Add Skin" id="addSkinButton" />
 </form>
 </div>
 
@@ -141,7 +149,7 @@ function popup(url, width, height, name)
 <h3><a href="#">Modify an Existing Page</a></h3>
 <div>
 <form method="post" action="">
-<p><label for="pageSelect" style="width:150px;display:inline-block;">Selece a Page to Edit:</label><select name="pageSelect" id="pageSelect" style="min-width:150px;">
+<p><label for="pageEditSelect" style="width:150px;display:inline-block;">Selece a Page to Edit:</label><select name="pageEditSelect" id="pageEditSelect" style="min-width:150px;">
 <option value='-1'></option>
 {{children}}
 </select></p>
@@ -204,7 +212,6 @@ function popup(url, width, height, name)
 <br><label for="delPermission" style="width:150px;display:inline-block;">Remove Permissions <a href="#" onclick="$('#dialog').html('This deletes special permissions for a specified user on a specified page.').dialog('open');">?</a></label><input type="radio" name="permissions" value="delPermission" />
 </fieldset><br></p>
 <p><label for="userSelect" style="width:150px;display:inline-block;">Enter Username: <a href="#" onclick="$('#dialog').html('This is the username of the user which you would like to give special permissions to.').dialog('open');">?</a></label><input type="text" name="userSelect" id="userSelect"></p>
-<p><label style="width:150px;display:inline-block;"></label>[ <a href="http://uberbots.org/forums/memberlist.php?mode=searchuser&amp;form=specialPermissions&amp;field=userSelect&amp;select_single=true" onclick="find_username(this.href); return false;">Find a member</a> ]</p>
 <p><label for="permissionPage" style="width:150px;display:inline-block">Select Page: <a href="#" onclick="$('#dialog').html('These are the pages which the user will have special permissions for. If child pages of a page inherit permissions, the user will have special permissions on those pages, as well.').dialog('open');">?</a></label><select name="permissionPage" id="permissionPage" style="min-width:150px;">
 <option value='-1'></option>
 <option value='0' style='font-weight:bold;'>Site Root</option>
@@ -223,52 +230,6 @@ function popup(url, width, height, name)
 <div id="permissions">
 {{permissions}}
 </div>
-
-</div>
-
-<h3><a href="#">Send an Email</a></h3>
-<div>
-<form action="/omni/actions/sendEmail.php" method="post">
-<p>Subject: <input type="text" value=""/ name="subject" size="40"></p>
-Message:<p>
-<textarea name="message" id="message" style="width:550px;height:200px;font:10pt Arial, Helvetica, sans-serif;"></textarea>
-</p>
-Recipient:<p>
-<select name="group">
-<option value="1">Team Members / Mentors</option>
-<option value="2">Parents</option>
-<option value="3">All</option>
-</select>
-</p>
-<input type="submit" value="Send"/><br />
-Note: Be cautious! There is no way to undo sending an email.
-</form>
-
-</div>
-
-<h3><a href="#">Send a Mass SMS Message</a></h3>
-<div>
-<form id="smsUpdate" action="/omni/actions/smsUpdates.php" method="post">
-Message:<p>
-<textarea name="message" style="width:100%;height:200px;font:10pt Arial, Helvetica, sans-serif;"></textarea>
-</p>
-<input type="submit" value="Send"/><br />
-Note: Be cautious! There is no way to undo sending a SMS message. Limit 160 characters or less.
-</form>
-</div>
-
-<h3><a href="#">Social Networking</a><h3>
-<div>
-
-<h3>Tweet to Twitter</h3>
-
- <br/>
-<form method="post" action="" id="tweet">
-
-<p><label for="tweet" style="width:150px;display:inline-block;">Tweet: <a href="#" onclick="$('#dialog').html('This is the text that will be tweeted. Tweets will go under the @team1124 account. All tweets must be 140 characters or less.').dialog('open');">?</a></label><input type="text" style="width:100%;" name="tweet" id="tweet" ></p>
-<input type="hidden" name="mode" value="tweet">
-<p><input type="submit" value="Tweet"></p>
-</form>
 
 </div>
 <h3><a href="#">View Log</a></h3>

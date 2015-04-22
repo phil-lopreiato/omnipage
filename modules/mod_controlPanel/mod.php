@@ -25,52 +25,34 @@ class mod_controlPanel {
 	public function render($properties) {
 
 
-		if(userPermissions(1)){
+        if(!userPermissions(1)){
+            return "This is an unauthorized action. The control panel can only be viewed by an administrator and on the appropriate page.";
+        }
+
 		global $page, $root_path;
+        include $root_path."/includes/admin.php";
 
-        if(!isset($_POST['mod'])) $_POST['mode'] = "";
+        if(!isset($_POST['mode'])) $_POST['mode'] = "";
 
-		//select form that was filled out and execute appropriate PHP code
+		//Perform administrative action
 		switch($_POST['mode']){
 
 			//add skin in SQL
 			case "addSkin":
-				$row = mysql_fetch_array(mysql_query("SELECT * FROM `skins` ORDER BY `id` DESC"))or die($message =  mysql_error());
-				$add = mysql_query("INSERT INTO `skins` (id,name,path,parent) VALUES ('".mysql_real_escape_string($row['id']+1)."','".mysql_real_escape_string($_POST['skinName'])."','".mysql_real_escape_string($_POST['skinPath'])."','".mysql_real_escape_string($_POST['skinParent'])."')");
-				$message = $add?"Skin added sucessfully":mysql_error();
-				logEntry("Added skin '".mysql_real_escape_string($_POST['skinName'])."'");
-				break;
+				$message = addSkin($_POST['skinName'], $_POST['skinPath'], $_POST['skinParent']);
+                break;
 
 			//add page in SQL
 			case "addPage":
-				//check that a parent page has been selected
-				if($_POST['parent'] == '-1'){
-					$message = "Please select a parent page.";
-				}else{
-					//check for valid page title
-					if(!$this->checkTitle($_POST['pageTitle']))
-							$message = "Page title is required. Must be 1-20 characters long containing only upper or lowercase letters, spaces, and numbers.";
-					else{
-						//check is page already exists
-						if(mysql_fetch_array(mysql_query("SELECT * FROM `pages` WHERE `parentId` = '".mysql_real_escape_string($_POST['parent'])."' AND `title` LIKE '".mysql_escape_string($_POST['pageTitle'])."'",$GLOBALS["mySQLLink"])))
-							$message = "Page title already exists";
-						else {
-							if(is_numeric($_POST['menuOrder']) && $_POST['menuOrder'] >= 0 && $_POST['menuOrder'] <= 100){
-								//find page id
-								$query = mysql_query("SELECT * FROM `pages` ORDER BY `id` DESC",$GLOBALS["mySQLLink"]);
-								$row = mysql_fetch_array($query);
-								//insert row with page info into SQL
-								$query = mysql_query("INSERT INTO  `uberbots_omni`.`pages` (`id` ,`parentId` ,`title` ,`order`,`inheritPermissions` ,`private`,`hide`,`redirect`) VALUES ('".($row['id']+1)."',  '".mysql_real_escape_string($_POST['parent'])."',  '".mysql_real_escape_string($_POST['pageTitle'])."','".(mysql_real_escape_string($_POST['menuOrder']))."','".($_POST["inherentBox"]=="on"?1:0)."','".($_POST["privateBox"]=="on"?1:0)."','".($_POST['hideBox']=='on'?1:0)."','".mysql_real_escape_string($_POST['redirect'])."');",$GLOBALS["mySQLLink"]);
-								//add log entry for added page
-								logEntry("added page ".$_POST['pageTitle']." id ".($row['id']+1)." with parent ".$_POST['parent']);
-								$message = $query ? "Page addition successful!" : "Error: ".mysql_error();
-							}else{
-								$message = "Menu Order is invalid. Order must be numeric and between 0 and 100.";
-							}
-						}
-					}
-				}
-			break;
+                $message = addPage( $_POST['parent'],
+                                    $_POST['pageTitle'],
+                                    $_POST['redirect'],
+                                    $_POST['menuOrder'],
+                                    isset($_POST['inherentBox'])?1:0,
+                                    isset($_POST['privateBox'])?1:0,
+                                    isset($_POST['hideBox'])?1:0
+                                   );
+                break;
 
 			//delete a page in SQL
 			case "delPage":
@@ -98,50 +80,16 @@ class mod_controlPanel {
 
 			//modify a page in SQL
 			case "editPage":
-				$message = "";
-				$pageId = $_POST['pageSelect'];
-
-				//check if user has entered title
-				if($_POST['newTitle'] != ""){
-					$newTitle = $_POST['newTitle'];
-					//update title in SQL
-					$query = mysql_query("UPDATE pages SET title = '".mysql_real_escape_string($newTitle)."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-					$message .= $query?"Title Updated Sucessfully <br/>":mysql_error();
-				}
-
-				//check if user has entered new parent page
-				if($_POST['newParent']!= -1){
-					$newParent = $_POST['newParent'];
-					//update parent in SQL
-					$query = mysql_query("UPDATE pages SET parentId = '".mysql_real_escape_string($newParent)."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-					$message .= $query?"Parent Updated Sucussfully <br/>":mysql_error();
-				}
-
-				//check for new menu order
-				if(isset($_POST['newMenuOrder'])){
-					$newOrder = mysql_real_escape_string($_POST['newMenuOrder']);
-					$q = mysql_query("UPDATE pages SET order = '".$newOrder."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS['mySQLLink']);
-				}
-
-				//update permissions
-				$query = mysql_query("UPDATE pages SET inheritPermissions = '".($_POST["newInherent"]=="on"?1:0)."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-				$message .= $query?"Inherent Updated Sucessfully <br/>":mysql_error();
-
-				//update private status
-				$query = mysql_query("UPDATE pages SET private = '".($_POST["newPrivate"]=="on"?1:0)."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-				$message .= $query?"Private Updated Sucessfully <br/>":mysql_error();
-				//add log entry for page update
-
-				$query = mysql_query("UPDATE pages SET hide = '".($_POST['newHideBox']=='on'?1:0)."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-				$message .= $query?"Hide from menu updated sucessfully <br/>":mysql_error();
-
-				//update redirect
-				$query = mysql_query("UPDATE pages SET redirect = '".mysql_real_escape_string($_POST["newRedirect"])."' WHERE id = '".mysql_real_escape_string($pageId)."'",$GLOBALS["mySQLLink"]);
-				$message .= $query?"Redirect Updated Sucessfully <br/>":mysql_error();
-
-				//add log entry for page update
-				logEntry("updated page, ID= ".$pageId."");
-				break;
+                $message = updatePage(  $_POST['pageEditSelect'],
+                                        $_POST['newParent'],
+                                        $_POST['newTitle'],
+                                        $_POST['newRedirect'],
+                                        $_POST['newMenuOrder'],
+                                        isset($_POST['newInherent'])?1:0,
+                                        isset($_POST['newPrivate'])?1:0,
+                                        isset($_POST['newHide'])?1:0
+                                     );
+    			break;
 
 			//special user permissions
 			case "specialPermission":
@@ -227,29 +175,6 @@ class mod_controlPanel {
 					}
 				}
 			break;
-
-			case "tweet":
-
-			require_once( $root_path.'/includes/twitteroauth/twitteroauth.php' );
-
-			define("CONSUMER_KEY", "bgviT8n3zlLDf1T8mzkIUg");
-			define("CONSUMER_SECRET", "4f1ay4eYAZJ8EUuGb0me7jipE4VJu4ggojxy3y9rc");
-			define("OAUTH_TOKEN", "134827411-2CeWeWLdmVzGXuRMbNBrW7zgbzEIOED4JBCIm23k");
-			define("OAUTH_SECRET", "aJLPywofIgRrl0pDL0Vuk5AOdzxpJJYQnNVCleSRyDg");
-
-			$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_SECRET);
-			$content = $connection->get('account/verify_credentials');
-			$response = $connection->post('statuses/update', array('status' => $_POST["tweet"]));
-
-			if ($connection->http_code == 200){
-				$message = "Tweet Posted";
-				logEntry("Tweeted '".$_POST["tweet"]."'");
-			}
-			else{
-				$message = "Could not post Tweet to Twitter right now. Try again later.";
-				logEntry("Twitter Failed. HTTP Code:".$connection->http_code.":".$response);
-			}
-			break;
 		}
 
 
@@ -264,9 +189,6 @@ class mod_controlPanel {
 	    $params = array('skins'=>$skins,"fullChildren"=>$this->allPages,"children"=>$this->selectOutput,"permissions"=>$permissionOutput, "message"=>isset($message)?$message:"","log"=>$log, "oldLogs"=>$oldLogs);
     	return parseSkin($params,'controlPanel',array("MESSAGE"=>isset($message)));
 
-	}else{
-		return "This is an unauthorized action. The control panel can only be viewed by an administrator and on the appropriate page.";
-	}
 	}
 
 	public function renderEdit($properties) {
