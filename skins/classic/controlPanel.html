@@ -52,16 +52,39 @@ $(document).ready(function(){
 			}
 	});
 
-    $("#addSkinButton")
+
+    $("#userSelect").change(function(){
+        $("#confirmPermission").attr("checked", false);
+        $("#userId").val("");
+    });
+
+    $("#confirmPermission").change(function(){
+        if($("#userSelect").val().length == 0) return;
+
+        $.post("/omni/ajax/getUserId.php", {username:$("#userSelect").val()}, function(data){
+            $("#userId").val(data);
+        });
+    });
 
 	$("#specialPermission").submit(function(){
-		if($("#confirmPermission").attr("checked"))
-			return true;
-		else{
-			$('#dialog').html('You need to confirm the operation').dialog('open');
+		if(!$("#confirmPermission").attr("checked")){
+			alert("You need to confirm the operation.");
 			return false;
-			}
-	});
+		}else if(!$("input[@name='permission']:checked").val()){
+            alert("You need to select an operation.");
+            return false;
+        }else if(!$("#userId").val()){
+            alert("You need to enter a username.");
+            return false;
+        }else if($("#permissionPage").val() <= 0){
+            alert("You must select a page");
+            return false;
+        }else if($("#permissionType").val() == -1){
+            alert("You must select a permission type");
+            return false;
+        }
+        return true;
+    });
 
 
 
@@ -89,8 +112,7 @@ function getPageMods(id){
 
 function popup(url, width, height, name)
 {
-	if (!name)
-	{
+	if (!name){
 		name = '_popup';
 	}
 
@@ -154,10 +176,10 @@ function popup(url, width, height, name)
 {{children}}
 </select></p>
 
-<p><label for="newTitle" style="width:150px;display:inline-block;">Page Title: <a href="#" onclick="$('#dialog').html('This is the browser window title, url, and sitemap title. Titles can contain only letters, numbers, and spaces. If this is left blank, then the page title will  not be changed.').dialog('open');">?</a>
+<p><label for="newTitle" style="width:150px;display:inline-block;">Page Title: <a href="#" onclick="$('#dialog').html('This is the browser window title, url, and sitemap title. Titles can contain only letters, numbers, and spaces.').dialog('open');">?</a>
 </label><input type="text" name="newTitle" id="newTitle"></p>
 
-<p><label for="newParent" style="width:150px;display:inline-block;">Parent Page: <a href="#" onclick="$('#dialog').html('This is the page under which the new page can be found in the menus, site map, and through the url. It the blank option is selected, the parent will not be changed.').dialog('open');">?</a></label><select name="newParent" id="newParent" style="min-width:150px;">
+<p><label for="newParent" style="width:150px;display:inline-block;">Parent Page: <a href="#" onclick="$('#dialog').html('This is the page under which the new page can be found in the menus, site map, and through the url.').dialog('open');">?</a></label><select name="newParent" id="newParent" style="min-width:150px;">
 <option value='-1'></option>
 {{children}}</select></p>
 
@@ -203,6 +225,19 @@ function popup(url, width, height, name)
 </form>
 </div>
 
+<h3><a href="#">Create User</a></h3>
+<div>
+<form method="post" action="" id="createUser">
+<p>Username: <input type="text" name="username" id="username" /></p>
+<p>Password: <input type="password" name="password" id="password" /></p>
+<p>Email: <input type="test" name="email" id="email" /></p>
+<p>Admin? <input type="checkbox" name="isAdmin" id="isAdmin" /></p>
+
+<input type="hidden" name="mode" value="addUser" />
+<input type="submit" name="addUserSbmit" value="Add" />
+</form>
+</div>
+
 <h3><a href="#">Special User Permissions</a></h3>
 <div>
 <form method="post" action="" id="specialPermission">
@@ -214,7 +249,6 @@ function popup(url, width, height, name)
 <p><label for="userSelect" style="width:150px;display:inline-block;">Enter Username: <a href="#" onclick="$('#dialog').html('This is the username of the user which you would like to give special permissions to.').dialog('open');">?</a></label><input type="text" name="userSelect" id="userSelect"></p>
 <p><label for="permissionPage" style="width:150px;display:inline-block">Select Page: <a href="#" onclick="$('#dialog').html('These are the pages which the user will have special permissions for. If child pages of a page inherit permissions, the user will have special permissions on those pages, as well.').dialog('open');">?</a></label><select name="permissionPage" id="permissionPage" style="min-width:150px;">
 <option value='-1'></option>
-<option value='0' style='font-weight:bold;'>Site Root</option>
 {{children}}</select></p>
 <p><label for="permissionType" style="width:150px;display:inline-block;">Permission Type <a href="#" onclick="$('#dialog').html('Read permissions allow the user to see a page that has been marked private. Write permissions allow that user to edit that page as well as see it. This option is not necessary when deleting permissions.').dialog('open');">?</a></label><select name="permissionType" id="permissionType" style="min-width:150px;">
 <option value='-1'></option>
@@ -223,6 +257,7 @@ function popup(url, width, height, name)
 </select></p>
 <p><label for="confirmPermission" style="width:150px;display:inline-block;">Are you sure you want to add, modify, or delete special permissions for this user?</label><input type="checkbox" name="confirmPermission" id="confirmPermission"></p>
 <input type="hidden" name="mode" value="specialPermission">
+<input type="hidden" name="userId" id="userId" value="" />
 <p><input type="submit" value="Submit"></p>
 </form>
 <br>

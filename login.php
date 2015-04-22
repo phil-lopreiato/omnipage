@@ -6,7 +6,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     include "includes/common.php";
     include_once "includes/user.php";
-    $salt = "salty";
     mySQLConnect();
 
     $user = $_POST['username'];
@@ -20,7 +19,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $str ="SELECT * FROM `users` WHERE `userName` = '". mysql_real_escape_string($user)."' LIMIT 1";
         $query = mysql_query($str, $mySQLLink) or die(mysql_error());
         if($row = mysql_fetch_assoc($query)){
-            $testHash = hash("sha512", $user.$pass.$salt);
+            $testHash = make_main_hash($user, $pass);
             if($testHash == $row['passHash']){
                 $user = new User($row);
                 $user->configure_session();

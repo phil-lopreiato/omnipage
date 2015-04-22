@@ -25,6 +25,7 @@ class mod_controlPanel {
 	public function render($properties) {
 
 
+        get_logged_in();
         if(!userPermissions(1)){
             return "This is an unauthorized action. The control panel can only be viewed by an administrator and on the appropriate page.";
         }
@@ -72,89 +73,36 @@ class mod_controlPanel {
                                      );
     			break;
 
+            case "addUser":
+                $message = addUser(     $_POST['username'],
+                                        $_POST['password'],
+                                        $_POST['email'],
+                                        isset($_POST['isAdmin'])?1:0
+                                  );
+                break;
+
 			//special user permissions
 			case "specialPermission":
 				//set vars
 				$type = $_POST['permissions'];
-				$user = $_POST['userSelect'];
-				$page = $_POST['permissionPage'];
-				$message = "";
+				$userId = $_POST['userId'];
+				$pageId = $_POST['permissionPage'];
+                $permissionType = $_POST['permissionType'];
 
-				//check if username is entered
-				if($_POST['userSelect'] == ""){
-					$message .= "Please enter a username.";
-				}else{
-					//check if user has entered a page
-					if($_POST['permissionPage'] != -1){
-						//check that permission type has been selected and type is not delete
-						if($_POST['permissionType' == -1] && $_POST['permissionType'] != "delPermission"){
-							$message .= "Please specify a permission type.";
-						}else{
-
-							//set more vars
-							$user = strtolower($_POST['userSelect']);
-							$user = mysql_real_escape_string($user);
-							$pageId = mysql_real_escape_string($_POST['permissionPage']);
-							$permissionType = mysql_real_escape_string($_POST['permissionType']);
-
-									//this switch statement selects between the three types (add, modify, delete)
-									switch($type){
-										//default: nothing selected
-										default:
-											$message .= "Please specify add, edit, or delete permissions.";
-											break;
-
-										//add permissions
-										case "addPermission":
-											//check if permissions already exist
-											$test = mysql_query("SELECT * FROM `pagePermissions` WHERE `username` = '".$user."' AND `pageId` = '".$pageId."'",$GLOBALS["mySQLLink"]);
-											if(mysql_fetch_array($test)){
-												$message .= "These user permissions already exist!";
-											}else{
-												global $db;
-												//select user id from phpBB table
-												$query = $db->sql_query("SELECT * FROM `phpbb_users` WHERE `username_clean` = '".$user."'",$GLOBALS["mySQLLink"]);
-
-												$array = $db->sql_fetchrow($query);
-												if(!$array)
-													$message .= "The specified user does not exist. Please try again.";
-												else{
-												$userId = $array['user_id'];
-
-												//insert permissions into omni database
-												$insert = mysql_query("INSERT INTO  `uberbots_omni`.`pagePermissions` (`userId` ,`username` ,`pageId` ,`type`)VALUES ('".$userId."', '".$user."' , '".$pageId."', '".$permissionType."');",$GLOBALS["mySQLLink"]) or die(mysql_error());
-												$message .= $insert?"Permission addition sucessful":mysql_error();
-												//add log entry for adding permissions
-												logEntry("Added Special permissions for User ".$user." on page with ID of ".$pageId." with permissions type ".$permissionType."");
-											}}
-											break;
-
-										//edit permissions
-										case "editPermission":
-											//update permissions in SQL
-											$update = mysql_query("UPDATE pagePermissions SET type = '".$permissionType."' WHERE username='".$user."' AND pageId='".$permissionType."'",$GLOBALS["mySQLLink"]);
-											$message .= $update?"Permissions updated sucessfully.":mysql_error();
-											//add log entry
-											logEntry("Updated permissions for user ".$user." on page ID ".$pageId." to type ".$permissionType."");
-											break;
-
-										//delete permissions
-										case "delPermission":
-											//delete permissions from SQL
-											$del = mysql_query("DELETE FROM `pagePermissions` WHERE `username` = '".$user."' AND `pageId` = '".$pageId."'",$GLOBALS["mySQLLink"]);
-											$message .= $del?"Permissions deleted sucessfully.":mysql_error();
-											//add log entry
-											logEntry("Delted permissions for user ".$user." on page ID ".$pageId."");
-											break;
-
-									}
-
-
-							}
-						}else{
-							$message .= "Please specify a page for special permissions to be applied.";
-					}
-				}
+                switch($type){
+                    case "addPermission":
+                        $message = addUserPermissions($userId, $pageId, $permissionType);
+                        break;
+                    case "editPermission":
+                        $message = editUserPermissions($userId, $pageId, $permissionType);
+                        break;
+                    case "delPermission":
+                        $message = removeUserPermissions($userId, $pageId);
+                        break;
+                    default:
+                        $message = "Select an action";
+                        break;
+                }
 			break;
 		}
 
@@ -248,7 +196,7 @@ class mod_controlPanel {
 		$query = mysql_query("SELECT * FROM `pagePermissions` NATUAL JOIN `users`");
         $permissionOutput = "";
 		$permissionOutput .= "<h3>Special Permissions List</h3><style type='text/css'>#permissionTable {width:100%;}
-#permissionTable TD {padding:5px;width:25%;}</style><table id='permissionTable'><tr><td><b>User ID</b></td><td><b>Username</b></td><td><b>Page ID</b></td><td><b>Permission Type</b></td></tr>";
+#permissionTable TD {padding:5px;width:25%;}</style><table id='permissionTable'><tr><th>User ID</th><th>Username</th><th>Page ID<th><th>Permission Type</th></tr>";
 		while ($row = mysql_fetch_array($query)){
 
 			if ($row['type'] == 0)
@@ -260,12 +208,5 @@ class mod_controlPanel {
 		$permissionOutput .= "</table>";
 		return $permissionOutput;
 	}
-
-	//check for valid page title
-	private function checkTitle($title){
-		return preg_match("%\A[A-Za-z0-9\s]{1,20}\Z%",$title);
-	}
-
-
 
 }

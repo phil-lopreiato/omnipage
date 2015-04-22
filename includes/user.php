@@ -39,6 +39,11 @@ class User{
     }
 }
 
+function make_main_hash($user, $pass){
+    $salt = "salty";
+    return hash("sha512", $user.$pass.$salt);
+}
+
 function make_session_hash($user, $hash){
     return hash("sha512", $user.$hash);
 }
