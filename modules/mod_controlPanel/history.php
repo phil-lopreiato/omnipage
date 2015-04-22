@@ -6,8 +6,7 @@
    * Copyright (c) 2011 Avon Robotics                                                       *
    ******************************************************************************************/
 
-$root_path = "/home1/uberbots/public_html/omni";
-include "$root_path/includes/common.php";
+include "../../includes/common.php";
 
 mySQLConnect();
 
