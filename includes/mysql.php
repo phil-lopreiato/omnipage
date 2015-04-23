@@ -15,7 +15,8 @@
  * Connection parameters are read from /omni/config.ini
  */
 function mySQLConnect(){
-	$config = parse_ini_file("/var/www/omni/omni.ini");
+    global $root_path;
+	$config = parse_ini_file($root_path."/omni.ini");
     $username = $config['user'];
 	$password = $config['pass'];
 	$database = $config['db'];

@@ -19,7 +19,7 @@ $domain = "http://teehee.me";
 
 //root path
 global $root_path;
-$root_path = "/var/www/default/omni";
+$root_path = "/var/www/2441/omni";
 
 
 //includes
