@@ -99,12 +99,6 @@ function getModule($modType){
 		case 2:
 			return new mod_sitemap();
 			break;
-		case 3:
-			return new mod_calendar();
-			break;
-		case 4:
-			return new mod_simpleScript();
-			break;
 	}
 
 	// if not valid modType
