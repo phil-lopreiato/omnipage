@@ -15,7 +15,7 @@
 
 //domain
 global $domain;
-$domain = "http://teehee.me";
+$domain = "http://omni.gibson.io";
 
 //root path
 global $root_path;
